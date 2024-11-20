@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Love Poker Game</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background: linear-gradient(to bottom, #f9d8e6, #a6d6ed);
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      color: #333;
+    }
+    .container {
+      width: 90%;
+      max-width: 800px;
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      padding: 20px;
+      text-align: center;
+      animation: fadeIn 2s ease-in-out;
+    }
+    h1 {
+      font-size: 2.5em;
+      color: #e91e63;
+      margin-bottom: 10px;
+    }
+    p {
+      color: #555;
+      font-size: 1.2em;
+    }
+    .form-group {
+      margin: 15px 0;
+    }
+    input[type="text"], input[type="password"], button {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      margin-top: 10px;
+    }
+    button {
+      background-color: #e91e63;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #d81b60;
+    }
+    .hidden {
+      display: none;
+    }
+    .poker-game {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    .card {
+      width: 80px;
+      height: 120px;
+      background: pink;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      font-weight: bold;
+      color: white;
+      cursor: pointer;
+      transition: transform 0.3s;
+    }
+    .card:hover {
+      transform: scale(1.1);
+    }
+    footer {
+      margin-top: 20px;
+      font-size: 14px;
+      color: #555;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container" id="login-container">
+    <h1>Welcome, Love!</h1>
+    <p>This is a special game created just for you. Login to begin your journey.</p>
+    <form id="login-form">
+      <div class="form-group">
+        <label for="name">Name</label>
+        <input type="text" id="name" name="name" placeholder="Enter your name" required>
+      </div>
+      <div class="form-group">
+        <label for="password">What does Alex like to call you?</label>
+        <input type="password" id="password" name="password" placeholder="Enter your answer" required>
+      </div>
+      <button type="submit">Login</button>
+    </form>
+  </div>
+
+  <div class="container hidden" id="game-container">
+    <h1>Love Poker Challenge 💖</h1>
+    <p>Match all the cards to prove your love and unlock the next stage of our journey!</p>
+    <div class="poker-game"></div>
+    <footer>
+      <p>Created with ❤️ by Alex Tanui PhD softEng</p>
+    </footer>
+  </div>
+
+  <script>
+    const loginForm = document.getElementById('login-form');
+    const loginContainer = document.getElementById('login-container');
+    const gameContainer = document.getElementById('game-container');
+
+    const validNames = ["Trixie", "Tracy"];
+    const validPasswords = ["babe", "baby", "love"];
+
+    loginForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      const name = document.getElementById('name').value.trim();
+      const password = document.getElementById('password').value.trim().toLowerCase();
+
+      if (validNames.includes(name) && validPasswords.includes(password)) {
+        alert(`Welcome, ${name}!`);
+        loginContainer.classList.add('hidden');
+        gameContainer.classList.remove('hidden');
+        createPokerGame();
+      } else {
+        alert('Invalid login details. Please try again.');
+      }
+    });
+
+    // Poker Game Logic
+    const pokerGame = document.querySelector('.poker-game');
+    const cards = ['💖', '😍', '😘', '❤️', '💋', '🌹', '💌', '💍', '🎶', '✨'];
+    const deck = [...cards, ...cards]; // Duplicate for matching pairs
+    let flippedCards = [];
+    let matchedPairs = 0;
+
+    function shuffle(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+    }
+
+    function createPokerGame() {
+      shuffle(deck).forEach(symbol => {
+        const card = document.createElement('div');
+        card.classList.add('card');
+        card.dataset.symbol = symbol;
+        card.textContent = '❓'; // Default card back
+        card.addEventListener('click', () => flipCard(card));
+        pokerGame.appendChild(card);
+      });
+    }
+
+    function flipCard(card) {
+      if (flippedCards.length < 2 && !card.classList.contains('matched')) {
+        card.textContent = card.dataset.symbol;
+        flippedCards.push(card);
+
+        if (flippedCards.length === 2) {
+          checkMatch();
+        }
+      }
+    }
+
+    function checkMatch() {
+      const [card1, card2] = flippedCards;
+      if (card1.dataset.symbol === card2.dataset.symbol) {
+        card1.classList.add('matched');
+        card2.classList.add('matched');
+        matchedPairs++;
+        if (matchedPairs === cards.length) {
+          alert('Congratulations! You matched all the cards!');
+        }
+      } else {
+        setTimeout(() => {
+          card1.textContent = '❓';
+          card2.textContent = '❓';
+        }, 1000);
+      }
+      flippedCards = [];
+    }
+  </script>
+</body>
+</html>
