@@ -15,7 +15,7 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      height: 100vh;
+      min-height: 100vh;
       color: #333;
     }
     .container {
@@ -37,10 +37,7 @@
       color: #555;
       font-size: 1.2em;
     }
-    .form-group {
-      margin: 15px 0;
-    }
-    input[type="text"], input[type="password"], button {
+    input[type="text"], input[type="password"], button, textarea {
       width: 100%;
       padding: 10px;
       border: 1px solid #ddd;
@@ -88,6 +85,10 @@
       font-size: 14px;
       color: #555;
     }
+    .love-emoji {
+      font-size: 5em;
+      color: #e91e63;
+    }
     @keyframes fadeIn {
       from { opacity: 0; }
       to { opacity: 1; }
@@ -99,41 +100,68 @@
     <h1>Welcome, Love!</h1>
     <p>This is a special game created just for you. Login to begin your journey.</p>
     <form id="login-form">
-      <div class="form-group">
-        <label for="name">Name</label>
-        <input type="text" id="name" name="name" placeholder="Enter your name" required>
-      </div>
-      <div class="form-group">
-        <label for="password">What does Alex like to call you?</label>
-        <input type="password" id="password" name="password" placeholder="Enter your answer" required>
-      </div>
+      <input type="text" id="name" placeholder="Enter your name" required>
+      <input type="password" id="password" placeholder="What does Alex like to call you?" required>
       <button type="submit">Login</button>
     </form>
   </div>
 
   <div class="container hidden" id="game-container">
     <h1>Love Poker Challenge 💖</h1>
-    <p>Match all the cards to prove your love and unlock the next stage of our journey!</p>
+    <p>Match all the cards to unlock the next stage of our journey!</p>
     <div class="poker-game"></div>
-    <footer>
-      <p>Created with ❤️ by Alex Tanui PhD softEng</p>
-    </footer>
+  </div>
+
+  <div class="container hidden" id="quiz-container">
+    <h1>Relationship Quiz 💌</h1>
+    <p>Answer these questions to show how much you know about us!</p>
+    <form id="quiz-form">
+      <div id="questions-container"></div>
+      <button type="submit">Submit Answers</button>
+    </form>
+  </div>
+
+  <div class="container hidden" id="end-container">
+    <h1>Goodbye, my love! 😘</h1>
+    <p>I love you, my baby! 💕</p>
+    <div class="love-emoji">❤️</div>
   </div>
 
   <script>
     const loginForm = document.getElementById('login-form');
     const loginContainer = document.getElementById('login-container');
     const gameContainer = document.getElementById('game-container');
+    const quizContainer = document.getElementById('quiz-container');
+    const endContainer = document.getElementById('end-container');
+    const pokerGame = document.querySelector('.poker-game');
+    const questionsContainer = document.getElementById('questions-container');
 
     const validNames = ["Trixie", "Tracy"];
     const validPasswords = ["babe", "baby", "love"];
+    const cards = ['💖', '😍', '😘', '❤️', '💋', '🌹', '💌', '💍', '🎶', '✨'];
+    const deck = [...cards, ...cards];
+    const relationshipQuestions = [
+      "Where did we first meet?",
+      "What is my favorite color?",
+      "What is our favorite song?",
+      "When is our anniversary?",
+      "What is my favorite dish?",
+      "What do I love most about you?",
+      "What nickname do I call you the most?",
+      "Where is our dream destination?",
+      "What is my favorite movie?",
+      "What was our most memorable date?",
+      "What do I always order at a restaurant?",
+      "What is one thing I cannot live without?",
+      "What is our funniest memory together?",
+      "What is the first gift I gave you?",
+      "What is the name of my best friend?"
+    ];
 
     loginForm.addEventListener('submit', (e) => {
       e.preventDefault();
-
       const name = document.getElementById('name').value.trim();
       const password = document.getElementById('password').value.trim().toLowerCase();
-
       if (validNames.includes(name) && validPasswords.includes(password)) {
         alert(`Welcome, ${name}!`);
         loginContainer.classList.add('hidden');
@@ -144,10 +172,6 @@
       }
     });
 
-    // Poker Game Logic
-    const pokerGame = document.querySelector('.poker-game');
-    const cards = ['💖', '😍', '😘', '❤️', '💋', '🌹', '💌', '💍', '🎶', '✨'];
-    const deck = [...cards, ...cards]; // Duplicate for matching pairs
     let flippedCards = [];
     let matchedPairs = 0;
 
@@ -164,7 +188,7 @@
         const card = document.createElement('div');
         card.classList.add('card');
         card.dataset.symbol = symbol;
-        card.textContent = '❓'; // Default card back
+        card.textContent = '❓';
         card.addEventListener('click', () => flipCard(card));
         pokerGame.appendChild(card);
       });
@@ -189,6 +213,9 @@
         matchedPairs++;
         if (matchedPairs === cards.length) {
           alert('Congratulations! You matched all the cards!');
+          gameContainer.classList.add('hidden');
+          quizContainer.classList.remove('hidden');
+          createQuiz();
         }
       } else {
         setTimeout(() => {
@@ -198,6 +225,28 @@
       }
       flippedCards = [];
     }
+
+    function createQuiz() {
+      const selectedQuestions = shuffle([...relationshipQuestions]).slice(0, 10);
+      selectedQuestions.forEach((question, index) => {
+        const questionDiv = document.createElement('div');
+        questionDiv.innerHTML = `
+          <label for="question-${index}">${question}</label>
+          <textarea id="question-${index}" name="question-${index}" required></textarea>
+        `;
+        questionsContainer.appendChild(questionDiv);
+      });
+    }
+
+    const quizForm = document.getElementById('quiz-form');
+    quizForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const formData = new FormData(quizForm);
+      const mailtoLink = `mailto:tanuialex417@gmail.com?subject=Quiz Answers&body=${encodeURIComponent([...formData.entries()].map(([key, value]) => `${key}: ${value}`).join('\n'))}`;
+      window.location.href = mailtoLink;
+      quizContainer.classList.add('hidden');
+      endContainer.classList.remove('hidden');
+    });
   </script>
 </body>
 </html>
